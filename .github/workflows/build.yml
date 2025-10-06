@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: self-hosted
     env:
       ROM_DEVICE: a3xelte
       ROM_LUNCH: evolution_a3xelte-userdebug
