@@ -36,18 +36,18 @@ jobs:
         mkdir -p .repo/local_manifests
         cat > .repo/local_manifests/a3xelte.xml <<'EOF'
         <manifest>
-          <project name="html6405/device_samsung_a3xelte"
+          <project name="a3xelte/device"
                    path="device/samsung/a3xelte"
                    remote="github"
-                   revision="lineage-20.0" />
-          <project name="html6405/kernel_samsung_universal7580"
+                   revision="master" />
+          <project name="a3xelte/kernel"
                    path="kernel/samsung/universal7580"
                    remote="github"
-                   revision="lineage-20.0" />
-          <project name="html6405/vendor_samsung_a3xelte"
+                   revision="master" />
+          <project name="a3xelte/vendor"
                    path="vendor/samsung/a3xelte"
                    remote="github"
-                   revision="lineage-20.0" />
+                   revision="master" />
           <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_arm" />
           <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_arm64" />
           <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_x86" />
