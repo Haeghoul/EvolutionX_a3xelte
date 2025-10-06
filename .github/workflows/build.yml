@@ -1,0 +1,96 @@
+name: EvolutionX a3xelte build and release
+
+on:
+  workflow_dispatch:    # 수동 실행
+  push:
+    branches:
+      - vic             # vic 브랜치에 push 시 자동 실행
+
+permissions:
+  contents: write       # Release/태그 생성에 필요
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      ROM_DEVICE: a3xelte
+      ROM_LUNCH: evolution_a3xelte-userdebug
+      EVOX_BRANCH: vic
+      CCACHE_SIZE: ${{ secrets.CCACHE_SIZE }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y git-core gnupg flex bison build-essential \
+          zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
+          lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev \
+          libxml2-utils xsltproc unzip fontconfig ccache openjdk-11-jdk
+
+    - name: Init repo
+      run: |
+        mkdir evox && cd evox
+        repo init -u https://github.com/Evolution-X/manifest -b ${EVOX_BRANCH}
+        repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
+
+    - name: Add local manifests (device/kernel/vendor)
+      run: |
+        cd evox
+        mkdir -p .repo/local_manifests
+        cat > .repo/local_manifests/a3xelte.xml <<'EOF'
+        <manifest>
+          <project name="html6405/device_samsung_a3xelte"
+                   path="device/samsung/a3xelte"
+                   remote="github"
+                   revision="lineage-20.0" />
+          <project name="html6405/kernel_samsung_universal7580"
+                   path="kernel/samsung/universal7580"
+                   remote="github"
+                   revision="lineage-20.0" />
+          <project name="html6405/vendor_samsung_a3xelte"
+                   path="vendor/samsung/a3xelte"
+                   remote="github"
+                   revision="lineage-20.0" />
+        </manifest>
+        EOF
+        repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
+
+    - name: Setup ccache
+      run: |
+        export USE_CCACHE=1
+        export CCACHE_EXEC=$(which ccache)
+        if [ -n "${CCACHE_SIZE}" ]; then
+          ccache -M ${CCACHE_SIZE}
+        else
+          ccache -M 10G
+        fi
+
+    - name: Build ROM
+      run: |
+        cd evox
+        source build/envsetup.sh
+        lunch ${ROM_LUNCH}
+        mka bacon -j$(nproc --all)
+
+    - name: Find build artifacts
+      id: findzip
+      run: |
+        ZIP_PATH=$(ls -1 evox/out/target/product/${ROM_DEVICE}/*.zip | tail -n1)
+        echo "zip=${ZIP_PATH}" >> $GITHUB_OUTPUT
+        echo "Found: ${ZIP_PATH}"
+
+    - name: Create release and upload zip
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: evox-${{ env.ROM_DEVICE }}-${{ github.run_number }}
+        name: "EvolutionX ${{
+          env.ROM_DEVICE
+        }} build #${{ github.run_number }}"
+        draft: false
+        prerelease: false
+        files: ${{ steps.findzip.outputs.zip }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
