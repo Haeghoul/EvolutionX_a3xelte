@@ -22,13 +22,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install dependencies
-      run: |
-        apt-get update
-        apt-get install -y git-core gnupg flex bison build-essential \
-          zip curl zlib1g-dev gcc-multilib g++-multilib libc6-dev-i386 \
-          lib32ncurses5-dev libx11-dev lib32z-dev libgl1-mesa-dev \
-          libxml2-utils xsltproc unzip fontconfig ccache openjdk-11-jdk
+    - name: Skip dependency install (already installed)
+      run: echo "Dependencies already installed on runner"
 
     - name: Init repo
       run: |
@@ -42,18 +37,18 @@ jobs:
         mkdir -p .repo/local_manifests
         cat > .repo/local_manifests/a3xelte.xml <<'EOF'
         <manifest>
-          <project name="a3xelte/device"
+          <project name="html6405/device_samsung_a3xelte"
                    path="device/samsung/a3xelte"
                    remote="github"
-                   revision="master" />
-          <project name="a3xelte/kernel"
+                   revision="lineage-20.0" />
+          <project name="html6405/kernel_samsung_universal7580"
                    path="kernel/samsung/universal7580"
                    remote="github"
-                   revision="master" />
-          <project name="a3xelte/vendor"
+                   revision="lineage-20.0" />
+          <project name="html6405/vendor_samsung_a3xelte"
                    path="vendor/samsung/a3xelte"
                    remote="github"
-                   revision="master" />
+                   revision="lineage-20.0" />
         </manifest>
         EOF
         repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
