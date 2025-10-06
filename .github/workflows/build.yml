@@ -30,7 +30,7 @@ jobs:
         mkdir evox && cd evox
         repo init -u https://github.com/Evolution-X/manifest -b ${EVOX_BRANCH}
 
-    - name: Add local manifests (custom a3xelte sources)
+    - name: Add local manifests (device/kernel/vendor/hardware)
       run: |
         cd evox
         mkdir -p .repo/local_manifests
@@ -46,6 +46,10 @@ jobs:
                    revision="master" />
           <project name="a3xelte/vendor"
                    path="vendor/samsung/a3xelte"
+                   remote="github"
+                   revision="master" />
+          <project name="a3xelte/hardware"
+                   path="hardware/a3xelte"
                    remote="github"
                    revision="master" />
         </manifest>
