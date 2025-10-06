@@ -29,7 +29,11 @@ jobs:
       run: |
         mkdir evox && cd evox
         repo init -u https://github.com/Evolution-X/manifest -b ${EVOX_BRANCH}
-        repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
+        repo sync -c --force-sync --no-clone-bundle --no-tags -j1 --fail-fast \
+          --exclude=external/chromium-webview/prebuilt/arm \
+          --exclude=external/chromium-webview/prebuilt/arm64 \
+          --exclude=external/chromium-webview/prebuilt/x86 \
+          --exclude=external/chromium-webview/prebuilt/x86_64
 
     - name: Add local manifests (device/kernel/vendor)
       run: |
@@ -87,3 +91,4 @@ jobs:
         files: ${{ steps.findzip.outputs.zip }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
