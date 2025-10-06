@@ -1,13 +1,13 @@
 name: EvolutionX a3xelte build and release
 
 on:
-  workflow_dispatch:    # 수동 실행
+  workflow_dispatch:
   push:
     branches:
-      - vic             # vic 브랜치에 push 시 자동 실행
+      - vic
 
 permissions:
-  contents: write       # Release/태그 생성에 필요
+  contents: write
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
         mkdir evox && cd evox
         repo init -u https://github.com/Evolution-X/manifest -b ${EVOX_BRANCH}
 
-    - name: Add local manifests (device/kernel/vendor + remove problematic projects)
+    - name: Add local manifests (custom a3xelte sources)
       run: |
         cd evox
         mkdir -p .repo/local_manifests
@@ -48,10 +48,6 @@ jobs:
                    path="vendor/samsung/a3xelte"
                    remote="github"
                    revision="master" />
-          <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_arm" />
-          <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_arm64" />
-          <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_x86" />
-          <remove-project name="LineageOS/android_external_chromium-webview_prebuilt_x86_64" />
         </manifest>
         EOF
         repo sync -c --force-sync --no-clone-bundle --no-tags -j$(nproc --all)
@@ -71,7 +67,7 @@ jobs:
         cd evox
         source build/envsetup.sh
         lunch ${ROM_LUNCH}
-        mka bacon -j$(nproc --all)
+        m evolution -j$(nproc --all)
 
     - name: Find build artifacts
       id: findzip
